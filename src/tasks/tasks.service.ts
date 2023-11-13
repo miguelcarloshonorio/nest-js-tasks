@@ -16,9 +16,8 @@ export class TasksService {
       status: TasksStatus.OPEN,
     };
 
-    model.id = randomUUID();
-    model.status = this.tasks.push(model);
-    return;
+    this.tasks.push(model);
+    return model;
   }
 
   getAll(): Task[] {
