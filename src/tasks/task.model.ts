@@ -3,6 +3,7 @@ export interface Task {
   description: string;
   title: string;
   status: TasksStatus;
+  createdAt: EpochTimeStamp;
 }
 
 export enum TasksStatus {
