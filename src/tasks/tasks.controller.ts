@@ -6,6 +6,7 @@ import {
   Param,
   Patch,
   Post,
+  Query,
 } from '@nestjs/common';
 import { TasksService } from './tasks.service';
 
@@ -17,14 +18,19 @@ import {
   ApiUnprocessableEntityResponse,
 } from '@nestjs/swagger';
 import { CreateTaskDto, UpdateTaskDto } from './dtos';
+import { GetTaskFilterDto } from './dtos/get-tasks-filter.dto';
 
 @Controller('tasks')
 export class TasksController {
   constructor(private taskServices: TasksService) {}
 
   @Get()
-  getAllTasks() {
-    return this.taskServices.getAll();
+  getTasks(@Query() filterDto: GetTaskFilterDto) {
+    if (Object.keys(filterDto).length) {
+      return this.taskServices.getTasksWithFilters(filterDto);
+    }
+
+    return this.taskServices.getAllTasks();
   }
 
   @Post()
