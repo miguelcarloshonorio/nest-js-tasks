@@ -1,6 +1,14 @@
-import { Body, Controller, Delete, Get, Param, Post } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  Delete,
+  Get,
+  Param,
+  Patch,
+  Post,
+} from '@nestjs/common';
 import { TasksService } from './tasks.service';
-import { CreateTaskDto } from './dtos/create-task.dto';
+
 import { Task } from './tasks';
 import {
   ApiOkResponse,
@@ -8,6 +16,7 @@ import {
   ApiUnauthorizedResponse,
   ApiUnprocessableEntityResponse,
 } from '@nestjs/swagger';
+import { CreateTaskDto, UpdateTaskDto } from './dtos';
 
 @Controller('tasks')
 export class TasksController {
@@ -39,5 +48,10 @@ export class TasksController {
   @Delete(':id')
   delete(@Param('id') id: string) {
     return this.taskServices.delete(id);
+  }
+
+  @Patch(':id/status')
+  updateStatus(@Param('id') id: string, @Body() request: UpdateTaskDto) {
+    return this.taskServices.updateStatus(id, request);
   }
 }
