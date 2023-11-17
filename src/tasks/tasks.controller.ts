@@ -17,8 +17,9 @@ import {
   ApiUnauthorizedResponse,
   ApiUnprocessableEntityResponse,
 } from '@nestjs/swagger';
-import { CreateTaskDto, UpdateTaskDto } from './dtos';
+import { CreateTaskDto } from './dtos';
 import { GetTaskFilterDto } from './dtos/get-tasks-filter.dto';
+import { TasksStatus } from './task.model';
 
 @Controller('tasks')
 export class TasksController {
@@ -57,7 +58,7 @@ export class TasksController {
   }
 
   @Patch(':id/status')
-  updateStatus(@Param('id') id: string, @Body() request: UpdateTaskDto) {
-    return this.taskServices.updateStatus(id, request);
+  updateStatus(@Param('id') id: string, @Body('status') status: TasksStatus) {
+    return this.taskServices.updateStatus(id, status);
   }
 }
