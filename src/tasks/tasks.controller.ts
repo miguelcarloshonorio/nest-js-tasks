@@ -19,7 +19,7 @@ import {
 } from '@nestjs/swagger';
 import { CreateTaskDto } from './dtos';
 import { GetTaskFilterDto } from './dtos/get-tasks-filter.dto';
-import { TasksStatus } from './task.model';
+import { UpdateTaskStatusDto } from './dtos/update-task-status.dto';
 
 @Controller('tasks')
 export class TasksController {
@@ -58,7 +58,7 @@ export class TasksController {
   }
 
   @Patch(':id/status')
-  updateStatus(@Param('id') id: string, @Body('status') status: TasksStatus) {
-    return this.taskServices.updateStatus(id, status);
+  updateStatus(@Param('id') id: string, @Body() body: UpdateTaskStatusDto) {
+    return this.taskServices.updateStatus(id, body.status);
   }
 }
