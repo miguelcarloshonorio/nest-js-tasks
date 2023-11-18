@@ -10,7 +10,6 @@ import {
 } from '@nestjs/common';
 import { TasksService } from './tasks.service';
 
-import { Task } from './tasks';
 import {
   ApiOkResponse,
   ApiOperation,
@@ -20,6 +19,7 @@ import {
 import { CreateTaskDto } from './dtos';
 import { GetTaskFilterDto } from './dtos/get-tasks-filter.dto';
 import { UpdateTaskStatusDto } from './dtos/update-task-status.dto';
+import { Task } from './task.entity';
 
 @Controller('tasks')
 export class TasksController {
@@ -43,7 +43,7 @@ export class TasksController {
   @ApiUnprocessableEntityResponse({
     description: 'Validation error or missing values (title or description)',
   })
-  createNewTasks(@Body() request: CreateTaskDto) {
+  createNewTasks(@Body() request: CreateTaskDto): Promise<Task> {
     return this.taskServices.create(request);
   }
 
