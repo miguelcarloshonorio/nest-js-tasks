@@ -1,6 +1,5 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
-import { TasksStatus } from './task.model';
-import { randomUUID } from 'crypto';
+import { TasksStatus } from './task.status';
 import { CreateTaskDto } from './dtos';
 import { GetTaskFilterDto } from './dtos/get-tasks-filter.dto';
 import { InjectRepository } from '@nestjs/typeorm';
@@ -13,8 +12,8 @@ export class TasksService {
     @InjectRepository(Task) private tasksRepository: Repository<Task>,
   ) {}
 
-  async delete(id: string) {
-    return this.tasksRepository.delete(id);
+  async delete(id: string): Promise<boolean> {
+    return (await this.tasksRepository.delete(id)).affected > 0;
   }
 
   async findOne(id: string): Promise<Task> {
@@ -35,7 +34,6 @@ export class TasksService {
     const { title, description } = dto;
 
     const model: Task = {
-      id: randomUUID(),
       description: description,
       title: title,
       status: TasksStatus.OPEN,
@@ -44,39 +42,29 @@ export class TasksService {
     return await this.tasksRepository.save(model);
   }
 
-  getAllTasks(): Promise<Task[]> {
-    return this.tasksRepository.find();
-  }
-
   async updateStatus(id: string, status: TasksStatus) {
     this.tasksRepository.update(id, {
       status,
     });
   }
 
-  async getTasksWithFilters(filterDto: GetTaskFilterDto): Promise<Task[]> {
+  async getTasks(filterDto: GetTaskFilterDto): Promise<Task[]> {
+    const query = this.tasksRepository.createQueryBuilder('task');
     const { search, status } = filterDto;
 
-    let tasks = await this.tasksRepository.find();
-
     if (status) {
-      tasks = tasks.filter((task) => task.status === status);
-    }
-
-    if (search) {
-      tasks = tasks.filter((task) => {
-        if (
-          task.title.toLocaleLowerCase().includes(search.toLocaleLowerCase()) ||
-          task.description
-            .toLocaleLowerCase()
-            .includes(search.toLocaleLowerCase())
-        ) {
-          return true;
-        }
-        return false;
+      query.where({
+        status,
       });
     }
 
-    return tasks;
+    if (search) {
+      // do some stuff
+      query.andWhere(
+        'LOWER(task.description) LIKE :search OR LOWER(task.description) LIKE :search',
+        { search: `%${search.toLocaleLowerCase()}%` },
+      );
+    }
+    return query.getMany();
   }
 }

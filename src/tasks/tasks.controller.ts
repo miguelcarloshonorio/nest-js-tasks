@@ -4,6 +4,7 @@ import {
   Delete,
   Get,
   Param,
+  ParseUUIDPipe,
   Patch,
   Post,
   Query,
@@ -27,11 +28,12 @@ export class TasksController {
 
   @Get()
   getTasks(@Query() filterDto: GetTaskFilterDto) {
-    if (Object.keys(filterDto).length) {
-      return this.taskServices.getTasksWithFilters(filterDto);
-    }
+    // if (Object.keys(filterDto).length) {
+    //   return this.taskServices.getTasksWithFilters(filterDto);
+    // }
 
-    return this.taskServices.getAllTasks();
+    // return this.taskServices.getAll();
+    return this.taskServices.getTasks(filterDto);
   }
 
   @Post()
@@ -47,19 +49,22 @@ export class TasksController {
     return this.taskServices.create(request);
   }
 
-  @Get(':id')
-  findOne(@Param('id') id: string) {
-    return this.taskServices.findOne(id);
+  @Get(':uuid')
+  async findOne(@Param('uuid', new ParseUUIDPipe()) uuid: string) {
+    return this.taskServices.findOne(uuid);
   }
 
-  @Delete(':id')
-  delete(@Param('id') id: string) {
-    return this.taskServices.delete(id);
+  @Delete(':uuid')
+  delete(@Param('uuid', new ParseUUIDPipe()) uuid: string) {
+    return this.taskServices.delete(uuid);
   }
 
-  @Patch(':id/status')
-  updateStatus(@Param('id') id: string, @Body() body: UpdateTaskStatusDto) {
+  @Patch(':uuid/status')
+  updateStatus(
+    @Param('uuid', new ParseUUIDPipe()) uuid: string,
+    @Body() body: UpdateTaskStatusDto,
+  ) {
     const { status } = body;
-    return this.taskServices.updateStatus(id, status);
+    return this.taskServices.updateStatus(uuid, status);
   }
 }
