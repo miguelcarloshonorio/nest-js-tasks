@@ -10,6 +10,7 @@ import {
 } from '@nestjs/swagger';
 import { CreateUserDto } from './dto/register-user.dto';
 import { UserLoginDto } from './dto/user-login.dto';
+import { SignInResponseDto } from './dto/signIn-response.dto';
 
 @Controller('auth')
 export class AuthController {
@@ -25,7 +26,7 @@ export class AuthController {
   @ApiUnprocessableEntityResponse({
     description: 'Validation error or missing values (title or description)',
   })
-  async signIn(@Body() request: UserLoginDto): Promise<void> {
+  async signIn(@Body() request: UserLoginDto): Promise<SignInResponseDto> {
     return this.authService.signIn(request);
   }
 

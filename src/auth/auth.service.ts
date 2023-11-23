@@ -9,19 +9,26 @@ import { User } from './user.entity';
 import { InjectRepository } from '@nestjs/typeorm';
 import * as bcrypt from 'bcrypt';
 import { UserLoginDto } from './dto/user-login.dto';
+import { JwtService } from '@nestjs/jwt';
+import { SignInResponseDto } from './dto/signIn-response.dto';
 
 @Injectable()
 export class AuthService {
   constructor(
     @InjectRepository(User)
     private userRepository: Repository<User>,
+    private jwtService: JwtService,
   ) {}
 
-  async signIn(authCredentialsDto: UserLoginDto) {
+  async signIn(authCredentialsDto: UserLoginDto): Promise<SignInResponseDto> {
     const username = await this.validateUserPassword(authCredentialsDto);
     if (!username) {
       throw new UnauthorizedException('invalid credentials');
     }
+    const payload = { username };
+    const accessToken = await this.jwtService.sign(payload);
+
+    return { accessToken };
   }
 
   async signUp(username: string, password: string): Promise<User> {
