@@ -23,6 +23,8 @@ import { GetTaskFilterDto } from './dtos/get-tasks-filter.dto';
 import { UpdateTaskStatusDto } from './dtos/update-task-status.dto';
 import { Task } from './task.entity';
 import { AuthGuard } from '@nestjs/passport';
+import { User } from 'src/auth/user.entity';
+import { GetUser } from 'src/auth/get-user.decorator';
 
 @Controller('tasks')
 @UseGuards(AuthGuard())
@@ -30,8 +32,8 @@ export class TasksController {
   constructor(private taskServices: TasksService) {}
 
   @Get()
-  getTasks(@Query() filterDto: GetTaskFilterDto) {
-    return this.taskServices.getTasks(filterDto);
+  getTasks(@Query() filterDto: GetTaskFilterDto, @GetUser() user: User) {
+    return this.taskServices.getTasks(filterDto, user);
   }
 
   @Post()
@@ -43,8 +45,11 @@ export class TasksController {
   @ApiUnprocessableEntityResponse({
     description: 'Validation error or missing values (title or description)',
   })
-  createNewTasks(@Body() request: CreateTaskDto): Promise<Task> {
-    return this.taskServices.create(request);
+  createNewTasks(
+    @Body() request: CreateTaskDto,
+    @GetUser() user: User,
+  ): Promise<Task> {
+    return this.taskServices.create(request, user);
   }
 
   @Get(':uuid')

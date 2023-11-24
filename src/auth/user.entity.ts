@@ -1,5 +1,12 @@
-import { Column, Entity, PrimaryGeneratedColumn } from 'typeorm';
+import {
+  Column,
+  Entity,
+  JoinTable,
+  ManyToMany,
+  PrimaryGeneratedColumn,
+} from 'typeorm';
 import * as bcrypt from 'bcrypt';
+import { Task } from 'src/tasks/task.entity';
 
 @Entity('users')
 export class User {
@@ -14,6 +21,10 @@ export class User {
 
   @Column()
   salt: string;
+
+  @ManyToMany(() => Task, (task) => task.user, { eager: true })
+  @JoinTable()
+  tasks: Task[];
 
   async validatePassword(password: string) {
     const hash = await bcrypt.hash(password, this.salt);

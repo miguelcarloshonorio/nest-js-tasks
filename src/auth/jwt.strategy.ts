@@ -22,6 +22,7 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
     const { username } = payload;
     const user: User = await this.userRepository.findOneBy({ username });
 
+    // can I user a interceptor? Yes, but I don't needed for now
     delete user.password;
     delete user.salt;
 

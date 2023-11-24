@@ -5,6 +5,7 @@ import { GetTaskFilterDto } from './dtos/get-tasks-filter.dto';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Task } from './task.entity';
 import { Repository } from 'typeorm';
+import { User } from 'src/auth/user.entity';
 
 @Injectable()
 export class TasksService {
@@ -30,13 +31,14 @@ export class TasksService {
     return task;
   }
 
-  async create(dto: CreateTaskDto): Promise<Task> {
+  async create(dto: CreateTaskDto, user: User): Promise<Task> {
     const { title, description } = dto;
 
     const model: Task = {
       description: description,
       title: title,
       status: TasksStatus.OPEN,
+      user,
     };
 
     return await this.tasksRepository.save(model);
@@ -48,8 +50,11 @@ export class TasksService {
     });
   }
 
-  async getTasks(filterDto: GetTaskFilterDto): Promise<Task[]> {
-    const query = this.tasksRepository.createQueryBuilder('task');
+  async getTasks(filterDto: GetTaskFilterDto, user: User): Promise<Task[]> {
+    const query = this.tasksRepository
+      .createQueryBuilder('tasks')
+      .where('tasks.userId = :id', { id: user.id });
+
     const { search, status } = filterDto;
 
     if (status) {
@@ -61,7 +66,7 @@ export class TasksService {
     if (search) {
       // do some stuff
       query.andWhere(
-        'LOWER(task.description) LIKE :search OR LOWER(task.description) LIKE :search',
+        '(LOWER(task.description) LIKE :search OR LOWER(task.description) LIKE :search)',
         { search: `%${search.toLocaleLowerCase()}%` },
       );
     }
