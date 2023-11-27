@@ -3,6 +3,7 @@ import {
   Controller,
   Delete,
   Get,
+  Logger,
   Param,
   ParseUUIDPipe,
   Patch,
@@ -29,10 +30,13 @@ import { GetUser } from 'src/auth/get-user.decorator';
 @Controller('tasks')
 @UseGuards(AuthGuard())
 export class TasksController {
+  private logger = new Logger('TasksController');
+
   constructor(private taskServices: TasksService) {}
 
   @Get()
   getTasks(@Query() filterDto: GetTaskFilterDto, @GetUser() user: User) {
+    this.logger.log('fetching task lister');
     return this.taskServices.getTasks(filterDto, user);
   }
 
